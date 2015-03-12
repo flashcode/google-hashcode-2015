@@ -4,7 +4,7 @@
 #
 # (c) 2015 Team Jambonneau
 #
-# Version: 4.0
+# Version: 6.0
 #
 
 import sys
@@ -45,6 +45,12 @@ def get_servers_in_col(list_srv, x):
 def get_best_server_not_used_in_line(list_srv, y):
     srv_in_line = [srv for srv in list_srv if srv.y == y and srv.group < 0]
     s = sorted(srv_in_line, key=lambda srv: srv.capacity, reverse=True)
+    return s[0] if s else None
+
+
+def get_best_server_ratio_not_used_in_line(list_srv, y):
+    srv_in_line = [srv for srv in list_srv if srv.y == y and srv.group < 0]
+    s = sorted(srv_in_line, key=lambda srv: srv.ratio, reverse=True)
     return s[0] if s else None
 
 
@@ -160,6 +166,7 @@ if __name__ == '__main__':
            len(s_servers)))
 
     grp = 0
+    grp2 = p - 1
 
     # by line
     # for y in range(r):
@@ -176,12 +183,30 @@ if __name__ == '__main__':
     #         grp = (grp + 1) % p
 
     # by line (best capacity)
+    # while True:
+    #     for y in range(r):
+    #         srv = get_best_server_not_used_in_line(s_servers, y)
+    #         if srv:
+    #             srv.group = grp
+    #             grp = (grp + 1) % p
+    #     if count_servers_not_used(s_servers) == 0:
+    #         break
+
+    # by line (best capacity)
+    b = True
     while True:
         for y in range(r):
             srv = get_best_server_not_used_in_line(s_servers, y)
             if srv:
-                srv.group = grp
-                grp = (grp + 1) % p
+                if b:
+                    srv.group = grp
+                    grp = (grp + 1) % p
+                else:
+                    srv.group = grp2
+                    grp2 -= 1
+                    if grp2 < 0:
+                        grp2 = p - 1
+                b = not b
         if count_servers_not_used(s_servers) == 0:
             break
 
