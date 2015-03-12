@@ -4,7 +4,7 @@
 #
 # (c) 2015 Team Jambonneau
 #
-# Version: 2.0
+# Version: 4.0
 #
 
 import sys
@@ -34,7 +34,23 @@ class Server(object):
 
 def get_servers_in_line(list_srv, y):
     srv_in_line = [srv for srv in list_srv if srv.y == y]
-    return sorted(srv_in_line, key=lambda x: srv.x)
+    return sorted(srv_in_line, key=lambda srv: srv.x)
+
+
+def get_servers_in_col(list_srv, x):
+    srv_in_col = [srv for srv in list_srv if srv.x == x]
+    return sorted(srv_in_col, key=lambda srv: srv.y)
+
+
+def get_best_server_not_used_in_line(list_srv, y):
+    srv_in_line = [srv for srv in list_srv if srv.y == y and srv.group < 0]
+    s = sorted(srv_in_line, key=lambda srv: srv.capacity, reverse=True)
+    return s[0] if s else None
+
+
+def count_servers_not_used(list_srv):
+    s = [srv for srv in list_srv if srv.x >= 0 and srv.group < 0]
+    return len(s)
 
 
 def read_file(filename):
@@ -144,11 +160,30 @@ if __name__ == '__main__':
            len(s_servers)))
 
     grp = 0
-    for y in range(r):
-        srv_in_line = get_servers_in_line(s_servers, y)
-        for srv in srv_in_line:
-            srv.group = grp
-            grp = (grp + 1) % p
+
+    # by line
+    # for y in range(r):
+    #     srv_in_line = get_servers_in_line(s_servers, y)
+    #     for srv in srv_in_line:
+    #         srv.group = grp
+    #         grp = (grp + 1) % p
+
+    # by column
+    # for x in range(s):
+    #     srv_in_col = get_servers_in_col(s_servers, x)
+    #     for srv in srv_in_col:
+    #         srv.group = grp
+    #         grp = (grp + 1) % p
+
+    # by line (best capacity)
+    while True:
+        for y in range(r):
+            srv = get_best_server_not_used_in_line(s_servers, y)
+            if srv:
+                srv.group = grp
+                grp = (grp + 1) % p
+        if count_servers_not_used(s_servers) == 0:
+            break
 
     servers_by_id = sorted(s_servers, key=lambda x: x.id)
     write_file(servers_by_id, 'dc.out')
