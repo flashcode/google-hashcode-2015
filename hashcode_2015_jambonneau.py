@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Google Hash Code 2015 - Qualification round
+# Google Hash Code 2015 - Qualification round (extended run)
 #
 # (c) 2015 Team Jambonneau
 #
