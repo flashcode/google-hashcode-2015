@@ -4,7 +4,7 @@
 #
 # (c) 2015 Team Jambonneau
 #
-# Version: 6.0
+# Version: 9.0
 #
 
 import sys
@@ -151,9 +151,10 @@ if __name__ == '__main__':
     y = 0
     for srv in s_servers:
         for i in range(r):
-            for x, num_avail in grid_avail[y]:
+            cur_y = (y + i) % r
+            for x, num_avail in grid_avail[cur_y]:
                 if srv.size <= num_avail:
-                    put_server(srv, x, y)
+                    put_server(srv, x, cur_y)
                     break
             if srv.x >= 0:
                 break
@@ -198,14 +199,11 @@ if __name__ == '__main__':
         for y in range(r):
             srv = get_best_server_not_used_in_line(s_servers, y)
             if srv:
-                if b:
-                    srv.group = grp
-                    grp = (grp + 1) % p
-                else:
-                    srv.group = grp2
-                    grp2 -= 1
-                    if grp2 < 0:
-                        grp2 = p - 1
+                srv.group = grp if b else grp2
+                grp = (grp + 1) % p
+                grp2 -= 1
+                if grp2 < 0:
+                    grp2 = p - 1
                 b = not b
         if count_servers_not_used(s_servers) == 0:
             break
