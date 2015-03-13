@@ -4,7 +4,7 @@
 #
 # (c) 2015 Team Jambonneau
 #
-# Version: 9.0
+# Version: 11.0
 #
 
 import sys
@@ -30,6 +30,16 @@ class Server(object):
     def __str__(self):
         return 'size: %d, cap: %d, ratio: %.02f, (%d,%d), grp=%d' % (
             self.size, self.capacity, self.ratio, self.x, self.y, self.group)
+
+
+def get_best_avail_pos(srv, y):
+    best_x = -1
+    best_avail = -1
+    for x, avail in grid_avail[y]:
+        if srv.size <= avail and (best_x < 0 or avail < best_avail):
+            best_x = x
+            best_avail = avail
+    return best_x
 
 
 def get_servers_in_line(list_srv, y):
@@ -148,15 +158,25 @@ if __name__ == '__main__':
 
     grid_avail = [get_list_avail(y) for y in range(len(grid))]
 
+    # y = 0
+    # for srv in s_servers:
+    #     for i in range(r):
+    #         cur_y = (y + i) % r
+    #         for x, num_avail in grid_avail[cur_y]:
+    #             if srv.size <= num_avail:
+    #                 put_server(srv, x, cur_y)
+    #                 break
+    #         if srv.x >= 0:
+    #             break
+    #     y = (y + 1) % r
+
     y = 0
     for srv in s_servers:
         for i in range(r):
             cur_y = (y + i) % r
-            for x, num_avail in grid_avail[cur_y]:
-                if srv.size <= num_avail:
-                    put_server(srv, x, cur_y)
-                    break
-            if srv.x >= 0:
+            best_x = get_best_avail_pos(srv, cur_y)
+            if best_x >= 0:
+                put_server(srv, best_x, cur_y)
                 break
         y = (y + 1) % r
 
